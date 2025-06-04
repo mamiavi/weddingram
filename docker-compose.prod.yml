@@ -1,0 +1,44 @@
+services:
+  db:
+    image: postgres:17.5
+    env_file:
+      .env.prod
+    ports:
+    - '${DJANGO_DB_PORT}:5432'
+    volumes:
+      - photos_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart:
+      always
+
+  web:
+    build:
+      context: .
+    env_file:
+      - .env.prod
+    volumes:
+      - shared_volume:/app/static/
+      - media_volume:/app/media/
+    depends_on:
+      - db
+    restart:
+      always
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - shared_volume:/var/www/static
+      - media_volume:/var/www/media
+    restart: always
+
+volumes:
+  shared_volume:
+  media_volume:
+  photos_data:

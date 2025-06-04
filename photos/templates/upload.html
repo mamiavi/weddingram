@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Subir Foto</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    .button-container {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      flex-direction: column;
+    }
+
+    .upload-label,
+    .gallery-button {
+      display: inline-block;
+      padding: 16px 32px;
+      background-color: #dbba84;
+      color: white;
+      border-radius: 12px;
+      font-size: 18px;
+      width: 80%;
+      max-width: 300px;
+      text-align: center;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+
+    .upload-label:hover,
+    .gallery-button:hover {
+      background-color: #dbba84;
+    }
+  </style>
+</head>
+<body>
+  <form id="photo-form" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" id="upload-photo" name="image" accept="image/*" capture="camera" hidden />
+    <div class="button-container">
+      <label for="upload-photo" class="upload-label">Subir foto</label>
+      <a href="/gallery" class="gallery-button">Galería</a>
+    </div>
+  </form>
+
+  <script>
+    const fileInput = document.getElementById('upload-photo');
+    const form = document.getElementById('photo-form');
+
+    fileInput.addEventListener('change', function () {
+      if (fileInput.files.length > 0) {
+        form.submit();
+      }
+    });
+  </script>
+</body>
+</html>

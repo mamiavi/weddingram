@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:17.5
+    env_file:
+      - .env
+    ports:
+    - '${DJANGO_DB_PORT}:5432'
+    volumes:
+    - photos_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart:
+      always
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - '8000:8000'
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart:
+      always
+volumes:
+  photos_data:
