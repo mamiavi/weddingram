@@ -35,9 +35,9 @@ def download_gallery_zip(request):
     zip_buffer = io.BytesIO()
     with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         for photo in photos:
-            file_path = photo.image.path
-            file_name = os.path.basename(file_path)
-            with open(file_path, 'rb') as f:
+            file_name = os.path.basename(photo.image.name)
+            # Open the file using Django storage backend
+            with photo.image.open('rb') as f:
                 zip_file.writestr(file_name, f.read())
 
     zip_buffer.seek(0)
