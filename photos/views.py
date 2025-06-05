@@ -13,10 +13,12 @@ def index(request):
 @login_required
 def upload_photo(request):
     if request.method == 'POST':
-        form = PhotoForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return redirect('gallery')
+        images = request.FILES.getlist('image')
+        for image in images:
+            form = PhotoForm(files={'image': image})
+            if form.is_valid():
+                form.save()
+        return redirect('gallery')
     else:
         form = PhotoForm()
     return render(request, 'upload.html', {'form': form})
