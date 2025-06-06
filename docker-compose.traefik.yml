@@ -49,6 +49,7 @@ services:
 
 volumes:
   shared_static:
+  photos_data:
 
 networks:
   traefik_proxy:
