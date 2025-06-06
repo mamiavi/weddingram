@@ -1,45 +1,37 @@
 services:
-  db:
-    image: postgres:17.5
-    env_file:
-      .env.prod
-    ports:
-      - '${POSTGRES_PORT}:5432'
-    volumes:
-      - photos_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready"]
-      interval: 10s
-      timeout: 3s
-      retries: 10
-    restart:
-      always
-
   web:
     build:
       context: .
     env_file:
       - .env.prod
     volumes:
-      - shared_volume:/app/static/
-      - media_volume:/app/media/
-    depends_on:
-      - db
+      - shared_static:/app/static/
     networks:
-      - traefik
+      - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.weddingram.rule=Host(`weddingram.manuelminambres.es`, `weddingram.localhost`, `81.202.12.40`, )
-      - traefik.http.routers.weddingram.entrypoints=websecure
-      - traefik.http.routers.weddingram.tls.certresolver=myresolver
-      - traefik.http.routers.weddingram.tls.domains[0].main=weddingram.manuelminambres.es
-    restart: always
+      - traefik.http.routers.weddingram_web.rule=Host(`weddingram.manuelminambres.es`) && PathPrefix(`/`) && !PathPrefix(`/static`)
+      - traefik.http.routers.weddingram_web.entrypoints=websecure
+      - traefik.http.routers.weddingram_web.tls.certresolver=myresolver
+      - traefik.http.services.weddingram_web.loadbalancer.server.port=8000
+
+  static:
+    image: nginx:alpine
+    volumes:
+      - ./nginx_static.conf:/etc/nginx/nginx.conf:ro
+      - shared_static:/usr/share/nginx/html/static/
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.weddingram_static.rule=Host(`weddingram.manuelminambres.es`) && PathPrefix(`/static`)
+      - traefik.http.routers.weddingram_static.entrypoints=websecure
+      - traefik.http.routers.weddingram_static.tls.certresolver=myresolver
+      - traefik.http.services.weddingram_static.loadbalancer.server.port=80
 
 volumes:
-  shared_volume:
-  media_volume:
-  photos_data:
+  shared_static:
 
 networks:
-  traefik:
+  traefik_proxy:
     external: true
