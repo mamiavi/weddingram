@@ -1,4 +1,22 @@
 services:
+  db:
+    image: postgres:17.5
+    env_file:
+      .env.prod
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    volumes:
+      - photos_data:/var/lib/postgresql/data
+    networks:
+      - traefik_proxy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart:
+      always
+
   web:
     build:
       context: .
