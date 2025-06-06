@@ -29,10 +29,10 @@ services:
       - traefik
     labels:
       - traefik.enable=true
-      - traefik.http.routers.nextcloud.rule=Host(`weddingram.manuelminambres.es`, `weddingram.localhost`, `81.202.12.40`, )
-      - traefik.http.routers.nextcloud.entrypoints=websecure
-      - traefik.http.routers.nextcloud.tls.certresolver=myresolver
-      - traefik.http.routers.nextcloud.tls.domains[0].main=weddingram.manuelminambres.es
+      - traefik.http.routers.weddingram.rule=Host(`weddingram.manuelminambres.es`, `weddingram.localhost`, `81.202.12.40`, )
+      - traefik.http.routers.weddingram.entrypoints=websecure
+      - traefik.http.routers.weddingram.tls.certresolver=myresolver
+      - traefik.http.routers.weddingram.tls.domains[0].main=weddingram.manuelminambres.es
     restart: always
 
 volumes:
