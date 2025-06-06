@@ -30,7 +30,15 @@ DEBUG = config('DEV_ENV', default=False, cast=bool)
 # Do we set Default Storage to BUCKET or to HARD DRIVE
 BUCKET_FILESTORE = config('BUCKET_FILESTORE', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+else:
+    ALLOWED_HOSTS = [
+        'https://weddingram.manuelminambres.es'
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        'https://weddingram.manuelminambres.es'
+    ]
 
 
 # Application definition
