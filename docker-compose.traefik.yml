@@ -1,0 +1,45 @@
+services:
+  db:
+    image: postgres:17.5
+    env_file:
+      .env.prod
+    ports:
+      - '${POSTGRES_PORT}:5432'
+    volumes:
+      - photos_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart:
+      always
+
+  web:
+    build:
+      context: .
+    env_file:
+      - .env.prod
+    volumes:
+      - shared_volume:/app/static/
+      - media_volume:/app/media/
+    depends_on:
+      - db
+    networks:
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.nextcloud.rule=Host(`weddingram.manuelminambres.es`, `weddingram.localhost`, `81.202.12.40`, )
+      - traefik.http.routers.nextcloud.entrypoints=websecure
+      - traefik.http.routers.nextcloud.tls.certresolver=myresolver
+      - traefik.http.routers.nextcloud.tls.domains[0].main=weddingram.manuelminambres.es
+    restart: always
+
+volumes:
+  shared_volume:
+  media_volume:
+  photos_data:
+
+networks:
+  traefik:
+    external: true
