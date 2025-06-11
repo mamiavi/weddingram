@@ -34,7 +34,7 @@ if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
     ALLOWED_HOSTS = [
-        'https://weddingram.manuelminambres.es'
+        'weddingram.manuelminambres.es'
     ]
     CSRF_TRUSTED_ORIGINS = [
         'https://weddingram.manuelminambres.es'
