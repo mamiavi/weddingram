@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+from celery.schedules import crontab
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -51,7 +52,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'storages'
+    'storages',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -153,6 +155,16 @@ STATICFILES_DIRS = [
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# Celery
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+
+CELERY_BEAT_SCHEDULE = {
+    "generate_gallery_zip_every_hour": {
+        "task": "photos.tasks.create_gallery_zip_task",
+        "schedule": crontab(minute=0),  # every hour at minute 0
+    },
+}
 
 if BUCKET_FILESTORE:
 

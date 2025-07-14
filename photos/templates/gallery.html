@@ -132,7 +132,7 @@
 
   <div class="gallery">
     {% for photo in photos %}
-      <img src="{{ photo.image.url }}" alt="Photo" data-index="{{ forloop.counter0 }}" class="gallery-img" />
+      <img src="{{ photo.file.url }}" alt="Photo" data-index="{{ forloop.counter0 }}" class="gallery-img" />
     {% endfor %}
   </div>
 
@@ -143,7 +143,7 @@
       <div class="swiper-wrapper">
         {% for photo in photos %}
           <div class="swiper-slide">
-            <img src="{{ photo.image.url }}" alt="Fullscreen photo" />
+            <img src="{{ photo.file.url }}" alt="Fullscreen photo" />
           </div>
         {% endfor %}
       </div>
@@ -155,7 +155,7 @@
 
   <div class="bottom-button-group">
     <a href="/" class="bottom-button" id="add-button">Añadir foto</a>
-    <a href="{% url 'download_gallery' %}" class="bottom-button bottom-button-outline">Descargar galería (.zip)</a>
+    <a href="{{ zip_file_url }}" class="bottom-button bottom-button-outline">Descargar galería (.zip)</a>
   </div>
 
   <!-- Swiper JS -->

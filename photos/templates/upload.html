@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Subir Foto</title>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.1/dist/browser-image-compression.js"></script>
   <style>
     body {
       margin: 0;
@@ -55,28 +56,110 @@
   </style>
 </head>
 <body>
+  
   <div class="logo-container">
     <img src="{% static 'img/logo.png' %}" alt="Boda M&M Logo" />
   </div>
 
-  <form id="photo-form" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <input type="file" id="upload-photo" name="image" accept="image/*" capture="environment" multiple hidden />
-    <div class="button-container">
-      <label for="upload-photo" class="upload-label">Subir foto</label>
-      <a href="/gallery" class="gallery-button">Galería</a>
-    </div>
-  </form>
+  <input type="file" id="upload-photo" name="image" accept="image/*" capture="environment" multiple hidden />
+  <div class="button-container">
+    <label for="upload-photo" class="upload-label">Subir foto</label>
+    <a href="/gallery" class="gallery-button">Galería</a>
+  </div>
 
   <script>
-    const fileInput = document.getElementById('upload-photo');
-    const form = document.getElementById('photo-form');
 
-    fileInput.addEventListener('change', function () {
-      if (fileInput.files.length > 0) {
-        form.submit();
-      }
+    // Set options for compresion
+    const options = { 
+      maxSizeMB: 5, 
+      fileType: 'image/webp', //seems to do nothing
+    }
+    const newExtension = 'webp';
+
+    // Get the token to call the protected API
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    const csrftoken = getCookie('csrftoken');
+
+    const fileInput = document.getElementById('upload-photo');
+
+    fileInput.addEventListener('change', async function () {
+      const files = fileInput.files;
+      if (files.length === 0) return;
+
+      await Promise.all([...files].map(uploadImage));
+
+      window.location.href = '/gallery';
+
     });
+
+    async function uploadImage(file) {
+
+      // Compress and convert the original image
+      const compressedBlob = await imageCompression(file, options);
+      const newName = file.name.replace(/\.\w+$/, `.${newExtension}`);
+      const compressedFile = new File([compressedBlob], newName, {
+        type: compressedBlob.type,
+      });
+
+
+      // Get the URL to uplaod the file
+      const formData = new FormData();
+      formData.append('file_name', compressedFile.name);
+      const resURL = await fetch('/get_upload_url/', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken
+        },
+        credentials: 'same-origin',
+        body: formData
+      });
+
+      const {pload, public_url, key} = await resURL.json();
+
+      // Upload file to storage
+      const data = new FormData();
+      if (pload.fields) {
+        Object.entries(pload.fields).forEach(([k, v]) => data.append(k, v));
+      }
+      data.append('file', compressedFile);
+
+      const resUpload = await fetch(pload.url, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrftoken
+        },
+        body: data
+      });
+
+      // Notify BE to store the S3 URL in the db
+      if (public_url) {
+        const formData = new FormData();
+        formData.append('key', key);
+        await fetch('/save_img_url/', {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken
+          },
+          body: formData
+        });
+      }
+
+    }
+
   </script>
 </body>
 </html>
