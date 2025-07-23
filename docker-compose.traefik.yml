@@ -30,6 +30,14 @@ services:
       - traefik.http.routers.weddingram_web.entrypoints=websecure
       - traefik.http.routers.weddingram_web.tls.certresolver=myresolver
       - traefik.http.services.weddingram_web.loadbalancer.server.port=8000
+
+      # Attach the middleware here
+      - traefik.http.routers.weddingram_web.middlewares=weddingram_web@docker
+
+      # Middleware to add HSTS
+      - traefik.http.middlewares.weddingram_web.headers.stsPreload=true
+      - traefik.http.middlewares.weddingram_web.headers.stsIncludeSubdomains=true
+      - traefik.http.middlewares.weddingram_web.headers.stsSeconds=15768000
     restart: always
 
   redis:
