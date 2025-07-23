@@ -1,225 +1,59 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Galería Boda M&M</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <title>Galería Boda M&M</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}"/>
 
-  <!-- Swiper CSS -->
-  <link
-    rel="stylesheet"
-    href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
-  />
+    <!-- Swiper CSS -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
+    />
 
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background-color: #f9f9f9;
-    }
-    .gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 8px;
-      padding: 10px;
-    }
-    .gallery img {
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-      cursor: pointer;
-      object-fit: cover;
-    }
-    /* Lightbox modal */
-    .lightbox {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: rgba(0,0,0,0.95);
-      z-index: 9999;
-      justify-content: center;
-      align-items: center;
-    }
-    .lightbox.active {
-      display: flex;
-    }
-    /* Swiper container */
-    .swiper {
-      width: 100vw;
-      height: 100vh;
-    }
-    .swiper-slide img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      border-radius: 0;
-    }
-    /* Add photo and download buttons container */
-    .bottom-button-group {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
+  </head>
 
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-      width: 80%;
-      max-width: 300px;
-    }
-    /* Buttons inside container */
-    .bottom-button-group .bottom-button {
-      position: static; /* remove fixed */
-      width: 100%;
-      box-sizing: border-box;
-    }
-    /* Original filled button style */
-    .bottom-button {
-      background-color: #dbba84;
-      color: white;
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-size: 18px;
-      text-decoration: none;
-      cursor: pointer;
-      text-align: center;
-      transition: background-color 0.3s ease;
-      user-select: none;
-      display: inline-block;
-    }
-    .bottom-button:hover {
-      background-color: #c4a76f;
-    }
-    /* Outline style button */
-    .bottom-button-outline {
-      background-color: transparent !important;
-      color: #dbba84 !important;
-      border: 2px solid #dbba84 !important;
-    }
-    .bottom-button-outline:hover {
-      background-color: #dbba84 !important;
-      color: white !important;
-    }
-    .bottom-button.hidden {
-      display: none;
-    }
-    /* Close button inside lightbox */
-    .close-btn {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      z-index: 1010;
-      background: rgba(255,255,255,0.3);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 28px;
-      color: white;
-      line-height: 40px;
-      text-align: center;
-      cursor: pointer;
-      user-select: none;
-    }
-    .close-btn:hover {
-      background: rgba(255,255,255,0.6);
-    }
-  </style>
-</head>
-<body>
+  <body>
 
-  <div class="gallery">
-    {% for photo in photos %}
-      <img src="{{ photo.file.url }}" alt="Photo" data-index="{{ forloop.counter0 }}" class="gallery-img" />
-    {% endfor %}
-  </div>
-
-  <!-- Lightbox -->
-  <div id="lightbox" class="lightbox">
-    <div class="close-btn" id="closeBtn">&times;</div>
-    <div class="swiper">
-      <div class="swiper-wrapper">
-        {% for photo in photos %}
-          <div class="swiper-slide">
-            <img src="{{ photo.file.url }}" alt="Fullscreen photo" />
-          </div>
-        {% endfor %}
-      </div>
-      <div class="swiper-button-next"></div>
-      <div class="swiper-button-prev"></div>
-      <div class="swiper-pagination"></div>
+    <div class="gallery">
+      {% for file in files %}
+        {% if file.is_video %}
+          <video src="{{ file.file.url }}" alt="Video" data-index="{{ forloop.counter0 }}" class="gallery-video"></video>
+        {% else %}
+          <img src="{{ file.file.url }}" alt="Photo" data-index="{{ forloop.counter0 }}" class="gallery-img" />
+        {% endif %}
+      {% endfor %}
     </div>
-  </div>
 
-  <div class="bottom-button-group">
-    <a href="/" class="bottom-button" id="add-button">Añadir foto</a>
-    <a href="{{ zip_file_url }}" class="bottom-button bottom-button-outline">Descargar galería (.zip)</a>
-  </div>
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+      <div class="close-btn" id="closeBtn">&times;</div>
+      <div class="swiper">
+        <div class="swiper-wrapper">
+          {% for file in files %}
+            <div class="swiper-slide">
+              {% if file.is_video %}
+                <video src="{{ file.file.url }}" controls alt="Fullscreen Video"></video>
+              {% else %}
+                <img src="{{ file.file.url }}" alt="Fullscreen photo" />
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+        <div class="swiper-button-next"></div>
+        <div class="swiper-button-prev"></div>
+        <div class="swiper-pagination"></div>
+      </div>
+    </div>
 
-  <!-- Swiper JS -->
-  <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
-  <script>
-    const lightbox = document.getElementById('lightbox');
-    const addButton = document.getElementById('add-button');
-    const closeBtn = document.getElementById('closeBtn');
-    const galleryImages = document.querySelectorAll('.gallery-img');
+    <div class="bottom-button-group">
+      <a href="/" class="bottom-button" id="add-button">Añadir foto</a>
+      <a href="{{ zip_file_url }}" class="bottom-button bottom-button-outline">Descargar galería (.zip)</a>
+    </div>
 
-    let swiper = null;
-
-    galleryImages.forEach(img => {
-      img.addEventListener('click', () => {
-        const index = parseInt(img.dataset.index, 10);
-        openLightbox(index);
-      });
-    });
-
-    function openLightbox(index) {
-      lightbox.classList.add('active');
-      addButton.classList.add('hidden');
-
-      if (!swiper) {
-        swiper = new Swiper('.swiper', {
-          initialSlide: index,
-          loop: false,
-          navigation: {
-            nextEl: '.swiper-button-next',
-            prevEl: '.swiper-button-prev',
-          },
-          pagination: {
-            el: '.swiper-pagination',
-            clickable: true,
-          },
-        });
-      } else {
-        swiper.slideTo(index, 0);
-      }
-
-      history.pushState({ lightboxOpen: true }, '');
-    }
-
-    function closeLightbox() {
-      lightbox.classList.remove('active');
-      addButton.classList.remove('hidden');
-      if (history.state?.lightboxOpen) {
-        history.back();
-      }
-    }
-
-    closeBtn.addEventListener('click', closeLightbox);
-
-    window.addEventListener('popstate', (e) => {
-      if (lightbox.classList.contains('active')) {
-        closeLightbox();
-      }
-    });
-
-    lightbox.addEventListener('click', (e) => {
-      if (e.target === lightbox) {
-        closeLightbox();
-      }
-    });
-  </script>
-</body>
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/gallery.js' %}"></script>
+  </body>
 </html>

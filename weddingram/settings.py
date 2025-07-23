@@ -33,6 +33,9 @@ BUCKET_FILESTORE = config('BUCKET_FILESTORE', default=False, cast=bool)
 
 if DEBUG:
     ALLOWED_HOSTS = ['*']
+    CSRF_TRUSTED_ORIGINS = [
+        'http://localhost/'
+    ]
 else:
     ALLOWED_HOSTS = [
         'weddingram.manuelminambres.es'
@@ -40,6 +43,14 @@ else:
     CSRF_TRUSTED_ORIGINS = [
         'https://weddingram.manuelminambres.es'
     ]
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SESSION_COOKIE_AGE = 86400
+    DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000  # 500MB
 
 
 # Application definition
