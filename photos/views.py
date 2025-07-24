@@ -15,6 +15,7 @@ from .models import File
 def index(request):
     return render(request, 'upload.html')
 
+
 @login_required
 def local_upload(request):
     if request.method == 'POST':
@@ -46,7 +47,7 @@ def get_upload_url(request):
                               aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
                               aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
                               region_name=settings.AWS_S3_REGION_NAME
-            )
+                              )
             pload = s3.generate_presigned_post(Bucket=bucket_name,
                                                Key=key,
                                                ExpiresIn=500)

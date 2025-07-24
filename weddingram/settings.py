@@ -142,6 +142,9 @@ USE_I18N = True
 
 USE_TZ = False
 
+CELERY_TIMEZONE = 'Europe/Madrid'
+CELERY_ENABLE_UTC = False
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -182,7 +185,7 @@ if BUCKET_FILESTORE:
     AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
 
     AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_FILE_OVERWRITE = False
+    AWS_S3_FILE_OVERWRITE = True
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-north-1')
     AWS_DEFAULT_ACL = 'private'
