@@ -2,13 +2,21 @@ import uuid
 
 import boto3
 from django.conf import settings
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 
 from photos.forms import FileForm
 
 from .models import File
+
+
+def login_token(request, token):
+    user = authenticate(token=token)
+    if user is not None:
+        login(request, user, 'auth.backends.TokenBackEnd')
+    return redirect('index')
 
 
 @login_required

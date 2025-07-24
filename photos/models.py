@@ -19,3 +19,7 @@ class File(models.Model):
         if self.is_video():
             return mark_safe(f'<video src="{self.file.url}" width="50" height="50" controls></video>')
         return mark_safe(f'<img src="{self.file.url}" width="50" height="50" />')
+
+
+class Token(models.Model):
+    uuid = models.UUIDField(unique=True)

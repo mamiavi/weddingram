@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import File
+from .models import File, Token
 
 
 class FileAdmin(admin.ModelAdmin):
@@ -15,3 +15,4 @@ class FileAdmin(admin.ModelAdmin):
 
 
 admin.site.register(File, FileAdmin)
+admin.site.register(Token)
