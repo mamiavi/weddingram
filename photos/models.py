@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.html import mark_safe
 
@@ -23,3 +24,4 @@ class File(models.Model):
 
 class Token(models.Model):
     uuid = models.UUIDField(unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
