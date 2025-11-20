@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
+from celery.schedules import crontab
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,7 +31,25 @@ DEBUG = config('DEV_ENV', default=False, cast=bool)
 # Do we set Default Storage to BUCKET or to HARD DRIVE
 BUCKET_FILESTORE = config('BUCKET_FILESTORE', default=False, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+if DEBUG:
+    ALLOWED_HOSTS = ['*']
+    CSRF_TRUSTED_ORIGINS = [
+        'http://localhost/'
+    ]
+else:
+    ALLOWED_HOSTS = [
+        'weddingram.manuelminambres.es'
+    ]
+    CSRF_TRUSTED_ORIGINS = [
+        'https://weddingram.manuelminambres.es'
+    ]
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 15768000
+    SECURE_HSTS_PRELOAD = True
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SESSION_COOKIE_AGE = 86400
+    DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000  # 500MB
 
 
 # Application definition
@@ -43,7 +62,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'storages'
+    'storages',
+    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -110,6 +130,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+    "auth.backends.TokenBackEnd"
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -121,6 +145,9 @@ TIME_ZONE = 'Europe/Madrid'
 USE_I18N = True
 
 USE_TZ = False
+
+CELERY_TIMEZONE = 'Europe/Madrid'
+CELERY_ENABLE_UTC = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -139,8 +166,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = BASE_DIR / 'static'
 
+STATICFILES_DIRS = [
+    BASE_DIR / "photos/assets",
+]
+
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
+
+# Celery
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+
+CELERY_BEAT_SCHEDULE = {
+    "generate_gallery_zip_every_hour": {
+        "task": "photos.tasks.create_gallery_zip_task",
+        "schedule": crontab(minute=0),  # every hour at minute 0
+    },
+}
 
 if BUCKET_FILESTORE:
 
@@ -148,7 +189,7 @@ if BUCKET_FILESTORE:
     AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
 
     AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
-    AWS_S3_FILE_OVERWRITE = False
+    AWS_S3_FILE_OVERWRITE = True
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-north-1')
     AWS_DEFAULT_ACL = 'private'
@@ -158,3 +199,6 @@ if BUCKET_FILESTORE:
         "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
     }
 
+WEDDING_DATE = config('WEDDING_DATE', default=False)
+if WEDDING_DATE:
+    MIDDLEWARE.insert(0, 'photos.middleware.CountdownMiddleware')

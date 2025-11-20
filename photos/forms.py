@@ -1,10 +1,9 @@
 from django import forms
-from .models import Photo
 
-class PhotoForm(forms.ModelForm):
+from .models import File
+
+
+class FileForm(forms.ModelForm):
     class Meta:
-        model = Photo
-        fields = ['image']
-        widgets = {
-            'image': forms.FileInput(attrs={'accept': 'image/*', 'capture':'camera'})
-            }
+        model = File
+        fields = ['file']

@@ -1,9 +1,27 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.html import mark_safe
 
-class Photo(models.Model):
-    image = models.ImageField(upload_to='uploads/')
+VIDEO_FORMATS = ('.mp4', '.mov', '.avi', '.webm')
+IMAGE_FORMATS = ('.jpg', '.jpeg', '.png', '.webp', '.gif')
+
+
+class File(models.Model):
+    file = models.FileField(upload_to='uploads/', max_length=500)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
-    def image_tag(self):
-        return mark_safe('<img src="%s" width ="50" height="50"/>'%(self.image.url))
+    def is_video(self):
+        return self.file.name.lower().endswith(VIDEO_FORMATS)
+
+    def is_image(self):
+        return self.file.name.lower().endswith(IMAGE_FORMATS)
+
+    def media_tag(self):
+        if self.is_video():
+            return mark_safe(f'<video src="{self.file.url}" width="50" height="50" controls></video>')
+        return mark_safe(f'<img src="{self.file.url}" width="50" height="50" />')
+
+
+class Token(models.Model):
+    uuid = models.UUIDField(unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)

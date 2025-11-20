@@ -1,46 +1,86 @@
-import os
-import io
-import zipfile
-from django.http import HttpResponse
-from django.shortcuts import render, redirect
-from .forms import PhotoForm
-from .models import Photo
-from django.contrib.auth.decorators import login_required
+import uuid
 
-def index(request):
-    return render(request, 'index.html')
+import boto3
+from django.conf import settings
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+
+from photos.forms import FileForm
+
+from .models import File
+
+
+def countdown_page(request):
+    return render(request, "countdown.html")
+
+
+def login_token(request, token):
+    user = authenticate(token=token)
+    if user is not None:
+        login(request, user, 'auth.backends.TokenBackEnd')
+    return redirect('index')
+
 
 @login_required
-def upload_photo(request):
+def index(request):
+    return render(request, 'upload.html')
+
+
+@login_required
+def local_upload(request):
     if request.method == 'POST':
-        images = request.FILES.getlist('image')
-        for image in images:
-            form = PhotoForm(files={'image': image})
-            if form.is_valid():
-                form.save()
-        return redirect('gallery')
-    else:
-        form = PhotoForm()
-    return render(request, 'upload.html', {'form': form})
+        form = FileForm(files=request.FILES)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'status': 'ok'})
+
 
 @login_required
 def show_gallery(request):
-    photos = Photo.objects.all().order_by('-uploaded_at')
-    return render(request, 'gallery.html', {'photos': photos})
+    files = File.objects.all().order_by('-uploaded_at')
+    if settings.BUCKET_FILESTORE:
+        zip_url = f'https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/zips/gallery.zip'
+    else:
+        zip_url = f'{settings.MEDIA_URL}zips/gallery.zip'
+    return render(request, 'gallery.html', {'files': files, 'zip_file_url': zip_url})
+
 
 @login_required
-def download_gallery_zip(request):
-    photos = Photo.objects.all()
+def get_upload_url(request):
+    if request.method == 'POST':
+        file_name = request.POST.get('file_name')
+        key = f'uploads/{uuid.uuid4()}_{file_name}'
 
-    zip_buffer = io.BytesIO()
-    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-        for photo in photos:
-            file_name = os.path.basename(photo.image.name)
-            # Open the file using Django storage backend
-            with photo.image.open('rb') as f:
-                zip_file.writestr(file_name, f.read())
+        if settings.BUCKET_FILESTORE:
+            bucket_name = settings.AWS_STORAGE_BUCKET_NAME
+            s3 = boto3.client('s3',
+                              aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                              aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+                              region_name=settings.AWS_S3_REGION_NAME
+                              )
+            pload = s3.generate_presigned_post(Bucket=bucket_name,
+                                               Key=key,
+                                               ExpiresIn=500)
+            public_url = f'https://{bucket_name}.s3.amazonaws.com/{key}'
+            return JsonResponse({
+                'pload': pload,
+                'public_url': public_url,
+                'key': key
+            })
+        else:
+            return JsonResponse({
+                'pload': {'url': '/local_upload/', 'fields': {}},
+                'public_url': False
+            })
 
-    zip_buffer.seek(0)
-    response = HttpResponse(zip_buffer, content_type='application/zip')
-    response['Content-Disposition'] = 'attachment; filename="galeria.zip"'
-    return response
+
+@login_required
+def save_file_url(request):
+    if request.method == 'POST':
+        key = request.POST.get('key')
+        file = File()
+        file.file.name = key
+        file.save()
+        return JsonResponse({'status': 'ok'})

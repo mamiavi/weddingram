@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Cuenta atrás - Boda M&M</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+  </head>
+
+  <body>
+
+    <div class="countdown-container">
+
+        <div id="timer" class="timer">
+            Cargando...
+        </div>
+
+        <div class="countdown-title">
+            ...para la boda de Manu y María
+        </div>
+
+    </div>
+
+    <script type="text/javascript" src="{% static 'js/countdown.js' %}"></script>
+  </body>
+</html>
