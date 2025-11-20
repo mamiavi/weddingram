@@ -167,3 +167,24 @@ body {
 .gallery-button:hover {
     background-color: #dbba84;
 }
+
+.countdown-container {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.countdown-title {
+    font-size: 30px;
+    color: #dbba84;
+    padding-top: 2%;
+}
+
+.timer {
+    font-size: 45px;
+    font-weight: bold;
+    color: #333;
+}
