@@ -1,5 +1,5 @@
 // Same date you use in your middleware
-const targetDate = new Date("2026-06-26T15:30:00Z").getTime();
+const targetDate = new Date("2026-06-26T16:30:00Z").getTime();
 
 function updateCountdown() {
     const now = new Date().getTime();

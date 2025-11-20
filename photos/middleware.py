@@ -9,7 +9,7 @@ from django.utils import timezone
 class CountdownMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        self.wedding_date = datetime.datetime.strptime(f"{settings.WEDDING_DATE}", "%d-%m-%Y")
+        self.wedding_date = datetime.datetime.strptime(settings.WEDDING_DATE, "%d-%m-%Y %H:%M")
 
     def __call__(self, request):
         # Allow access to countdown page itself (avoid redirect loop)
