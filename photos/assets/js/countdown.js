@@ -16,7 +16,7 @@ function updateCountdown() {
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
     document.getElementById("timer").innerHTML =
-        `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        `${days} días ${hours} horas ${minutes} minutos y ${seconds} segundos...`;
 }
 
 setInterval(updateCountdown, 1000);
