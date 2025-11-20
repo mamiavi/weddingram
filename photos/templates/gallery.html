@@ -11,7 +11,6 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css"
     />
-
   </head>
 
   <body>
@@ -19,9 +18,21 @@
     <div class="gallery">
       {% for file in files %}
         {% if file.is_video %}
-          <video src="{{ file.file.url }}" alt="Video" data-index="{{ forloop.counter0 }}" class="gallery-video"></video>
+          <video
+            src="{{ file.file.url }}#t=0.001"
+            class="gallery-video"
+            data-index="{{ forloop.counter0 }}"
+            playsinline
+            preload="metadata"
+            poster="{{ file.thumbnail_url|default:'' }}"
+          ></video>
         {% else %}
-          <img src="{{ file.file.url }}" alt="Photo" data-index="{{ forloop.counter0 }}" class="gallery-img" />
+          <img
+            src="{{ file.file.url }}"
+            alt="Photo"
+            data-index="{{ forloop.counter0 }}"
+            class="gallery-img"
+          />
         {% endif %}
       {% endfor %}
     </div>
@@ -34,7 +45,13 @@
           {% for file in files %}
             <div class="swiper-slide">
               {% if file.is_video %}
-                <video src="{{ file.file.url }}" controls alt="Fullscreen Video"></video>
+                <video
+                  src="{{ file.file.url }}#t=0.001"
+                  controls
+                  playsinline
+                  preload="metadata"
+                  poster="{{ file.thumbnail_url|default:'' }}"
+                ></video>
               {% else %}
                 <img src="{{ file.file.url }}" alt="Fullscreen photo" />
               {% endif %}
@@ -49,7 +66,9 @@
 
     <div class="bottom-button-group">
       <a href="/" class="bottom-button" id="add-button">Añadir foto</a>
-      <a href="{{ zip_file_url }}" class="bottom-button bottom-button-outline">Descargar galería (.zip)</a>
+      <a href="{{ zip_file_url }}" class="bottom-button bottom-button-outline">
+        Descargar galería (.zip)
+      </a>
     </div>
 
     <!-- Swiper JS -->
