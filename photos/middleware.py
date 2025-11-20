@@ -16,6 +16,10 @@ class CountdownMiddleware:
         if request.path == reverse("countdown"):
             return self.get_response(request)
 
+        # Allow access to admin
+        if request.path.startswith('/admin/'):
+            return self.get_response(request)
+
         # Redirect if before start time
         now = timezone.now()
         if now < self.wedding_date:
