@@ -199,3 +199,6 @@ if BUCKET_FILESTORE:
         "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"}
     }
 
+WEDDING_DATE = config('WEDDING_DATE', default=False)
+if WEDDING_DATE:
+    MIDDLEWARE.insert(0, 'photos.middleware.CountdownMiddleware')

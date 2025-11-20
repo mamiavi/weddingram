@@ -12,6 +12,10 @@ from photos.forms import FileForm
 from .models import File
 
 
+def countdown_page(request):
+    return render(request, "countdown.html")
+
+
 def login_token(request, token):
     user = authenticate(token=token)
     if user is not None:
