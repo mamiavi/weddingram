@@ -7,3 +7,4 @@ pillow==11.2.1
 psycopg[binary]==3.2.1
 python-decouple==3.8
 redis==5.2.0
+zipstream-new==1.1.8

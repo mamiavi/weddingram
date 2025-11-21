@@ -22,7 +22,7 @@
 
     <div class="gallery">
       {% for file in files %}
-        <div class="gallery-item" data-key="{{ file.file.name }}">
+        <div class="gallery-item" data-id="{{ file.id }}">
           {% if file.is_video %}
             <video
               src="{{ file.file.url }}#t=0.001"
@@ -80,8 +80,17 @@
       </a>
     </div>
 
+    <!--Download animation-->
+    <div id="download-overlay" class="hidden">
+      <div class="overlay-content">
+          <div class="spinner"></div>
+          <p>Preparando tu descarga...</p>
+      </div>
+    </div>
+
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/gallery.js' %}"></script>
   </body>
 </html>
