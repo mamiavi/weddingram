@@ -34,8 +34,6 @@ fileInput.addEventListener('change', async function () {
         return;
     }
 
-    // Add some kind of uploading animation
-
     await Promise.all([...files].map(uploadFile));
 
     window.location.href = '/gallery';
