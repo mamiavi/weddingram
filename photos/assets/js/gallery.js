@@ -83,3 +83,103 @@ lightbox.addEventListener('click', (e) => {
     closeLightbox();
     }
 });
+
+let selectionMode = false;
+let selectedItems = new Set();
+
+const galleryItems = document.querySelectorAll('.gallery-item');
+const selectionBar = document.getElementById('selection-bar');
+const downloadSelectedBtn = document.getElementById('download-selected-btn');
+const selectAllBtn = document.getElementById('select-all-btn');
+const cancelSelectBtn = document.getElementById('cancel-select-btn');
+
+let longPressTimer = null;
+let longPressTriggered = false;
+
+galleryItems.forEach(item => {
+    const media = item.querySelector('.gallery-media');
+
+    // Right-click = selection mode
+    media.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        enterSelectionMode();
+        toggleItem(item);
+    });
+
+    // Touch start: begin long press detection
+    media.addEventListener('touchstart', () => {
+        longPressTriggered = false;
+
+        longPressTimer = setTimeout(() => {
+            longPressTriggered = true;
+            enterSelectionMode();
+            toggleItem(item);
+        }, 450);
+    });
+
+    // Touch end: cancel long-press timer
+    media.addEventListener('touchend', () => {
+        clearTimeout(longPressTimer);
+    });
+
+    // Click / tap
+    media.addEventListener('click', (e) => {
+        if (longPressTriggered) {
+            // long-press already handled, block click
+            e.stopPropagation();
+            return;
+        }
+
+        if (selectionMode) {
+            e.stopPropagation();
+            toggleItem(item);
+        } else {
+            // Normal click → open lightbox
+            const index = parseInt(media.dataset.index, 10);
+            openLightbox(index);
+        }
+    });
+});
+
+// Enter selection mode
+function enterSelectionMode() {
+    if (selectionMode) return;
+    selectionMode = true;
+    selectionBar.classList.remove('hidden');
+    downloadSelectedBtn.classList.remove('hidden');
+    addButton.classList.add('hidden');
+}
+
+// Toggle an item
+function toggleItem(item) {
+    const key = item.dataset.key;
+    if (item.classList.contains('selected')) {
+        item.classList.remove('selected');
+        selectedItems.delete(key);
+    } else {
+        item.classList.add('selected');
+        selectedItems.add(key);
+    }
+}
+
+// Select all
+selectAllBtn.addEventListener('click', () => {
+    galleryItems.forEach(item => {
+        if (!item.classList.contains('selected')) {
+            toggleItem(item);
+        }
+    });
+});
+
+// Exit selection mode
+cancelSelectBtn.addEventListener('click', exitSelectionMode);
+
+function exitSelectionMode() {
+    selectionMode = false;
+    selectionBar.classList.add('hidden');
+    downloadSelectedBtn.classList.add('hidden');
+    addButton.classList.remove('hidden');
+
+    selectedItems.clear();
+    galleryItems.forEach(item => item.classList.remove('selected'));
+}
