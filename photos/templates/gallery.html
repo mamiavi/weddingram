@@ -15,25 +15,33 @@
 
   <body>
 
+    <div id="selection-bar" class="selection-bar hidden">
+        <button id="select-all-btn">Seleccionar todo</button>
+        <button id="cancel-select-btn">Cancelar</button>
+    </div>
+
     <div class="gallery">
       {% for file in files %}
-        {% if file.is_video %}
-          <video
-            src="{{ file.file.url }}#t=0.001"
-            class="gallery-video"
-            data-index="{{ forloop.counter0 }}"
-            playsinline
-            preload="metadata"
-            poster="{{ file.thumbnail_url|default:'' }}"
-          ></video>
-        {% else %}
-          <img
-            src="{{ file.file.url }}"
-            alt="Photo"
-            data-index="{{ forloop.counter0 }}"
-            class="gallery-img"
-          />
-        {% endif %}
+        <div class="gallery-item" data-id="{{ file.id }}">
+          {% if file.is_video %}
+            <video
+              src="{{ file.file.url }}#t=0.001"
+              class="gallery-media"
+              data-index="{{ forloop.counter0 }}"
+              playsinline
+              preload="metadata"
+              poster="{{ file.thumbnail_url|default:'' }}"
+            ></video>
+          {% else %}
+            <img
+              src="{{ file.file.url }}"
+              alt="Photo"
+              data-index="{{ forloop.counter0 }}"
+              class="gallery-media"
+            />
+          {% endif %}
+          <div class="select-overlay"></div>
+        </div>
       {% endfor %}
     </div>
 
@@ -66,13 +74,23 @@
 
     <div class="bottom-button-group">
       <a href="/" class="bottom-button" id="add-button">Añadir foto</a>
-      <a href="{{ zip_file_url }}" class="bottom-button bottom-button-outline">
-        Descargar galería (.zip)
+      <a id="download-selected-btn"
+        class="bottom-button bottom-button-outline hidden">
+        Descargar seleccionados (.zip)
       </a>
+    </div>
+
+    <!--Download animation-->
+    <div id="download-overlay" class="hidden">
+      <div class="overlay-content">
+          <div class="spinner"></div>
+          <p>Preparando tu descarga...</p>
+      </div>
     </div>
 
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/gallery.js' %}"></script>
   </body>
 </html>
