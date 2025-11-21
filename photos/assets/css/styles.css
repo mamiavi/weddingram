@@ -278,6 +278,26 @@ body {
     display: none;
 }
 
+#upload-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-family: sans-serif;
+}
+
+#upload-overlay.hidden {
+    display: none;
+}
+
 .overlay-content .spinner {
     border: 6px solid #f3f3f3;
     border-top: 6px solid #dbba84;

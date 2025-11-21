@@ -20,6 +20,13 @@
       <label for="upload-photo" class="upload-label">Subir archivo</label>
       <a href="/gallery" class="gallery-button">Galería</a>
     </div>
+    <!--Download animation-->
+    <div id="upload-overlay" class="hidden">
+      <div class="overlay-content">
+          <div class="spinner"></div>
+          <p>Preparando la subida...</p>
+      </div>
+    </div>
   </body>
   <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/upload.js' %}"></script>
