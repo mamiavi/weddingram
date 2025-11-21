@@ -1,10 +1,13 @@
+import os
 import uuid
 
 import boto3
+import zipstream
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
+from django.core.files.storage import default_storage
+from django.http import Http404, JsonResponse, StreamingHttpResponse
 from django.shortcuts import redirect, render
 
 from photos.forms import FileForm
@@ -84,3 +87,30 @@ def save_file_url(request):
         file.file.name = key
         file.save()
         return JsonResponse({'status': 'ok'})
+
+
+@login_required
+def download_selected_zip(request):
+    if request.method == "POST":
+        file_ids = request.POST.getlist("file_ids[]")
+        files = File.objects.filter(id__in=file_ids)
+
+        zip_stream = zipstream.ZipFile(mode="w", compression=zipstream.ZIP_DEFLATED)
+
+        for f in files:
+            filename = os.path.basename(f.file.name)
+            file_obj = default_storage.open(f.file.name, "rb")
+
+            # Wrap in iterator to stream in chunks
+            zip_stream.write_iter(
+                filename, 
+                iter(lambda file_obj=file_obj: file_obj.read(1024*64), b"")
+            )
+
+        response = StreamingHttpResponse(
+            zip_stream, content_type="application/zip"
+        )
+        response['Content-Disposition'] = 'attachment; filename="selected_files.zip"'
+
+        return response
+

@@ -188,3 +188,127 @@ body {
     font-weight: bold;
     color: #333;
 }
+
+.gallery-item {
+    position: relative;
+}
+
+.gallery-item.selected {
+    outline: 4px solid #dbba84;
+    border-radius: 8px;
+}
+
+.select-overlay {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 26px;
+    height: 26px;
+    background-color: #dbba84;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.gallery-item.selected .select-overlay {
+    opacity: 1;
+}
+
+.selection-bar {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 58px;
+    background: white;
+    color: #dbba84;
+    border-bottom: 2px solid #dbba84;
+    display: flex;
+    justify-content: center;   /* centered buttons */
+    align-items: center;
+    gap: 12px;                 /* spacing between buttons */
+    padding: 0 10px;           /* smaller side padding */
+    z-index: 2000;
+    font-family: inherit;
+    font-size: 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.selection-bar button {
+    background-color: transparent;
+    border: 2px solid #dbba84;
+    border-radius: 10px;
+    padding: 8px 14px;
+    color: #dbba84;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.selection-bar button:hover {
+    background-color: #dbba84;
+    color: white;
+}
+
+.selection-bar.hidden {
+    display: none;
+}
+
+
+#download-selected-btn.hidden {
+    display: none;
+}
+
+#download-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-family: sans-serif;
+}
+
+#download-overlay.hidden {
+    display: none;
+}
+
+#upload-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.7);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    color: white;
+    font-family: sans-serif;
+}
+
+#upload-overlay.hidden {
+    display: none;
+}
+
+.overlay-content .spinner {
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #dbba84;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
