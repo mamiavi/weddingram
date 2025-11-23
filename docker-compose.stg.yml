@@ -1,5 +1,5 @@
 services:
-  db:
+  db_stg:
     image: postgres:17.5
     env_file:
       .env.stg
@@ -15,7 +15,7 @@ services:
     restart:
       always
 
-  web:
+  web_stg:
     build:
       context: .
     env_file:
@@ -40,8 +40,7 @@ services:
       - traefik.http.middlewares.weddingram_web_stg.headers.stsSeconds=15768000
     restart: always
 
-  redis:
-    container_name: redis_stg
+  redis_stg:
     image: redis:7.0-alpine
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
@@ -53,8 +52,7 @@ services:
     networks:
       - traefik_proxy
 
-  celery:
-    container_name: celery_stg
+  celery_stg:
     build:
       context: .
       dockerfile: Dockerfile
@@ -63,13 +61,12 @@ services:
     env_file:
       - .env.stg
     depends_on:
-      - web
-      - redis
+      - web_stg
+      - redis_stg
     networks:
       - traefik_proxy
 
-  celery-beat:
-    container_name: celery_beat_stg
+  celery-beat_stg:
     build:
       context: .
       dockerfile: Dockerfile
@@ -78,12 +75,12 @@ services:
     env_file:
       - .env.stg
     depends_on:
-      - web
-      - redis
+      - web_stg
+      - redis_stg
     networks:
       - traefik_proxy
 
-  static:
+  static_stg:
     image: nginx:alpine
     volumes:
       - ./nginx_static.conf:/etc/nginx/nginx.conf:ro
