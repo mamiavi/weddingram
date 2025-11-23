@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:17.5
     env_file:
-      .env.prod
+      .env.stg
     volumes:
-      - photos_data:/var/lib/postgresql/data
+      - photos_data_stg:/var/lib/postgresql/data
     networks:
       - traefik_proxy
     healthcheck:
@@ -19,28 +19,29 @@ services:
     build:
       context: .
     env_file:
-      - .env.prod
+      - .env.stg
     volumes:
-      - shared_static:/app/static/
+      - shared_static_stg:/app/static/
     networks:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.weddingram_web.rule=Host(`weddingram.manuelminambres.es`) && PathPrefix(`/`) && !PathPrefix(`/static`)
-      - traefik.http.routers.weddingram_web.entrypoints=websecure
-      - traefik.http.routers.weddingram_web.tls.certresolver=myresolver
-      - traefik.http.services.weddingram_web.loadbalancer.server.port=8000
+      - traefik.http.routers.weddingram_web_stg.rule=Host(`stg.weddingram.manuelminambres.es`) && PathPrefix(`/`) && !PathPrefix(`/static`)
+      - traefik.http.routers.weddingram_web_stg.entrypoints=websecure
+      - traefik.http.routers.weddingram_web_stg.tls.certresolver=myresolver
+      - traefik.http.services.weddingram_web_stg.loadbalancer.server.port=8000
 
       # Attach the middleware here
-      - traefik.http.routers.weddingram_web.middlewares=weddingram_web@docker
+      - traefik.http.routers.weddingram_web_stg.middlewares=weddingram_web_stg@docker
 
       # Middleware to add HSTS
-      - traefik.http.middlewares.weddingram_web.headers.stsPreload=true
-      - traefik.http.middlewares.weddingram_web.headers.stsIncludeSubdomains=true
-      - traefik.http.middlewares.weddingram_web.headers.stsSeconds=15768000
+      - traefik.http.middlewares.weddingram_web_stg.headers.stsPreload=true
+      - traefik.http.middlewares.weddingram_web_stg.headers.stsIncludeSubdomains=true
+      - traefik.http.middlewares.weddingram_web_stg.headers.stsSeconds=15768000
     restart: always
 
   redis:
+    container_name: redis_stg
     image: redis:7.0-alpine
     healthcheck:
       test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
@@ -53,13 +54,14 @@ services:
       - traefik_proxy
 
   celery:
+    container_name: celery_stg
     build:
       context: .
       dockerfile: Dockerfile
     command: celery -A weddingram worker --loglevel=info
     restart: always
     env_file:
-      - .env.prod
+      - .env.stg
     depends_on:
       - web
       - redis
@@ -67,13 +69,14 @@ services:
       - traefik_proxy
 
   celery-beat:
+    container_name: celery_beat_stg
     build:
       context: .
       dockerfile: Dockerfile
     command: celery -A weddingram beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     restart: always
     env_file:
-      - .env.prod
+      - .env.stg
     depends_on:
       - web
       - redis
@@ -84,19 +87,19 @@ services:
     image: nginx:alpine
     volumes:
       - ./nginx_static.conf:/etc/nginx/nginx.conf:ro
-      - shared_static:/usr/share/nginx/html/static/
+      - shared_static_stg:/usr/share/nginx/html/static/
     networks:
       - traefik_proxy
     labels:
       - traefik.enable=true
-      - traefik.http.routers.weddingram_static.rule=Host(`weddingram.manuelminambres.es`) && PathPrefix(`/static`)
-      - traefik.http.routers.weddingram_static.entrypoints=websecure
-      - traefik.http.routers.weddingram_static.tls.certresolver=myresolver
-      - traefik.http.services.weddingram_static.loadbalancer.server.port=80
+      - traefik.http.routers.weddingram_static_stg.rule=Host(`stg.weddingram.manuelminambres.es`) && PathPrefix(`/static`)
+      - traefik.http.routers.weddingram_static_stg.entrypoints=websecure
+      - traefik.http.routers.weddingram_static_stg.tls.certresolver=myresolver
+      - traefik.http.services.weddingram_static_stg.loadbalancer.server.port=80
 
 volumes:
-  shared_static:
-  photos_data:
+  shared_static_stg:
+  photos_data_stg:
 
 networks:
   traefik_proxy:
