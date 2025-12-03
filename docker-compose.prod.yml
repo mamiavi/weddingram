@@ -87,6 +87,7 @@ services:
       - shared_static:/usr/share/nginx/html/static/
     networks:
       - traefik_proxy
+    restart: always
     labels:
       - traefik.enable=true
       - traefik.http.routers.weddingram_static.rule=Host(`weddingram.manuelminambres.es`) && PathPrefix(`/static`)
