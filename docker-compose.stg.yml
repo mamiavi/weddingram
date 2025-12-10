@@ -88,6 +88,8 @@ services:
     networks:
       - traefik_proxy
     restart: always
+    depends_on:
+      - web_stg
     labels:
       - traefik.enable=true
       - traefik.http.routers.weddingram_static_stg.rule=Host(`stg.weddingram.manuelminambres.es`) && PathPrefix(`/static`)
