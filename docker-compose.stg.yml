@@ -1,0 +1,106 @@
+services:
+  db_stg:
+    image: postgres:17.5
+    env_file:
+      .env.stg
+    volumes:
+      - photos_data_stg:/var/lib/postgresql/data
+    networks:
+      - traefik_proxy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart:
+      always
+
+  web_stg:
+    build:
+      context: .
+    env_file:
+      - .env.stg
+    volumes:
+      - shared_static_stg:/app/static/
+    networks:
+      - traefik_proxy
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.weddingram_web_stg.rule=Host(`stg.weddingram.manuelminambres.es`) && PathPrefix(`/`) && !PathPrefix(`/static`)
+      - traefik.http.routers.weddingram_web_stg.entrypoints=websecure
+      - traefik.http.routers.weddingram_web_stg.tls.certresolver=myresolver
+      - traefik.http.services.weddingram_web_stg.loadbalancer.server.port=8000
+
+      # Attach the middleware here
+      - traefik.http.routers.weddingram_web_stg.middlewares=weddingram_web_stg@docker
+
+      # Middleware to add HSTS
+      - traefik.http.middlewares.weddingram_web_stg.headers.stsPreload=true
+      - traefik.http.middlewares.weddingram_web_stg.headers.stsIncludeSubdomains=true
+      - traefik.http.middlewares.weddingram_web_stg.headers.stsSeconds=15768000
+    restart: always
+
+  redis_stg:
+    image: redis:7.0-alpine
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 5
+    command: ["redis-server"]
+    restart: always
+    networks:
+      - traefik_proxy
+
+  celery_stg:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A weddingram worker --loglevel=info
+    restart: always
+    env_file:
+      - .env.stg
+    depends_on:
+      - web_stg
+      - redis_stg
+    networks:
+      - traefik_proxy
+
+  celery-beat_stg:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A weddingram beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+    restart: always
+    env_file:
+      - .env.stg
+    depends_on:
+      - web_stg
+      - redis_stg
+    networks:
+      - traefik_proxy
+
+  static_stg:
+    image: nginx:alpine
+    volumes:
+      - ./nginx_static.conf:/etc/nginx/nginx.conf:ro
+      - shared_static_stg:/usr/share/nginx/html/static/
+    networks:
+      - traefik_proxy
+    restart: always
+    depends_on:
+      - web_stg
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.weddingram_static_stg.rule=Host(`stg.weddingram.manuelminambres.es`) && PathPrefix(`/static`)
+      - traefik.http.routers.weddingram_static_stg.entrypoints=websecure
+      - traefik.http.routers.weddingram_static_stg.tls.certresolver=myresolver
+      - traefik.http.services.weddingram_static_stg.loadbalancer.server.port=80
+
+volumes:
+  shared_static_stg:
+  photos_data_stg:
+
+networks:
+  traefik_proxy:
+    external: true
