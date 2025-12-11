@@ -38,10 +38,12 @@ if DEBUG:
     ]
 else:
     ALLOWED_HOSTS = [
-        'weddingram.manuelminambres.es'
+        'weddingram.manuelminambres.es',
+        'stg.weddingram.manuelminambres.es'
     ]
     CSRF_TRUSTED_ORIGINS = [
-        'https://weddingram.manuelminambres.es'
+        'https://weddingram.manuelminambres.es',
+        'https://stg.weddingram.manuelminambres.es'
     ]
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
