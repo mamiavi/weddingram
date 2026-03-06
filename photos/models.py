@@ -9,6 +9,7 @@ IMAGE_FORMATS = ('.jpg', '.jpeg', '.png', '.webp', '.gif')
 class File(models.Model):
     file = models.FileField(upload_to='uploads/', max_length=500)
     uploaded_at = models.DateTimeField(auto_now_add=True)
+    thumbnail = models.FileField(upload_to='thumbnails/', max_length=500, blank=True, null=True)
 
     def is_video(self):
         return self.file.name.lower().endswith(VIDEO_FORMATS)
@@ -18,7 +19,7 @@ class File(models.Model):
 
     def media_tag(self):
         if self.is_video():
-            return mark_safe(f'<video src="{self.file.url}" width="50" height="50" controls></video>')
+            return mark_safe(f'<video src="{self.file.url}" width="50" height="50" controls></>')
         return mark_safe(f'<img src="{self.file.url}" width="50" height="50" />')
 
 

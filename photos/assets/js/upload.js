@@ -27,6 +27,7 @@ fileInput.addEventListener('change', async function () {
     if (invalidFiles.length > 0) {
         alert("Solo puedes subir archivos de imagen o video.");
         fileInput.value = '';  // Reset file input
+        hideUploadOverlay();
         return;
     }
 
@@ -36,6 +37,7 @@ fileInput.addEventListener('change', async function () {
     if (totalSize > maxSize) {
         alert("El tamaño total de los archivos no puede exceder de 500MB.");
         fileInput.value = ''; // Reset the input
+        hideUploadOverlay();
         return;
     }
 

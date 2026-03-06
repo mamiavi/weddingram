@@ -10,7 +10,7 @@ class FileAdmin(admin.ModelAdmin):
         if obj.is_image():
             return format_html('<img src="{}" style="max-width:200px; max-height:200px"/>'.format(obj.file.url))
         elif obj.is_video():
-            return format_html('<video src="{}" width="50" height="50" controls></video>'.format(obj.file.url))
+            return format_html('<video src="{}" style="max-width:200px; max-height:200px"/>'.format(obj.file.url))
     list_display = ['media_tag', 'file']
 
 
