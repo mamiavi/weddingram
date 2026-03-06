@@ -30,11 +30,11 @@
               data-index="{{ forloop.counter0 }}"
               playsinline
               preload="none"
-              poster="{{ file.thumbnail.url|default:'' }}"
+              poster="{{ file.thumbnail_url }}"
             ></video>
           {% else %}
             <img
-              src="{{ file.thumbnail.url|default:file.file.url }}"
+              src="{{ file.thumbnail_url }}"
               alt="Photo"
               data-index="{{ forloop.counter0 }}"
               class="gallery-media"
@@ -59,7 +59,7 @@
                   controls
                   playsinline
                   preload="none"
-                  poster="{{ file.thumbnail.url|default:'' }}"
+                  poster="{{ file.thumbnail_url }}"
                 ></video>
               {% else %}
                 <img src="{{ file.file.url }}" alt="Fullscreen photo" />

@@ -11,9 +11,11 @@ class File(models.Model):
     uploaded_at = models.DateTimeField(auto_now_add=True)
     thumbnail = models.FileField(upload_to='thumbnails/', max_length=500, blank=True, null=True)
 
+    @property
     def is_video(self):
         return self.file.name.lower().endswith(VIDEO_FORMATS)
 
+    @property
     def is_image(self):
         return self.file.name.lower().endswith(IMAGE_FORMATS)
 
@@ -21,6 +23,12 @@ class File(models.Model):
         if self.is_video():
             return mark_safe(f'<video src="{self.file.url}" width="50" height="50" controls></>')
         return mark_safe(f'<img src="{self.file.url}" width="50" height="50" />')
+
+    @property
+    def thumbnail_url(self):
+        if self.thumbnail and self.thumbnail.name:
+            return self.thumbnail.url
+        return ''
 
 
 class Token(models.Model):

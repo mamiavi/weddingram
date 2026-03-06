@@ -7,9 +7,9 @@ from .models import File, Token
 class FileAdmin(admin.ModelAdmin):
 
     def media_tag(self, obj):
-        if obj.is_image():
+        if obj.is_image:
             return format_html('<img src="{}" style="max-width:200px; max-height:200px"/>'.format(obj.file.url))
-        elif obj.is_video():
+        elif obj.is_video:
             return format_html('<video src="{}" style="max-width:200px; max-height:200px"/>'.format(obj.file.url))
     list_display = ['media_tag', 'file']
 

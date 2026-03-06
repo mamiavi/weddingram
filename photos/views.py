@@ -42,7 +42,7 @@ def local_upload(request):
         if form.is_valid():
             instance = form.save()
             if not settings.BUCKET_FILESTORE:
-                if instance.is_image():
+                if instance.is_image:
                     img = Image.open(instance.file)
                 else:
                     container = av.open(instance.file)
