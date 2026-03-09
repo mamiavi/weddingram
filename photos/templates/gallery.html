@@ -59,10 +59,9 @@
                   controls
                   playsinline
                   preload="none"
-                  poster="{{ file.thumbnail_url }}"
                 ></video>
               {% else %}
-                <img src="{{ file.file.url }}" alt="Fullscreen photo" />
+                <img data-src="{{ file.file.url }}" alt="Fullscreen photo" />
               {% endif %}
             </div>
           {% endfor %}

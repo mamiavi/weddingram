@@ -1,4 +1,5 @@
 import json
+import os
 import uuid
 import zipfile
 from io import BytesIO
@@ -53,8 +54,12 @@ def local_upload(request):
                 img.thumbnail((300, 300))
                 thumb_io = BytesIO()
                 img.save(thumb_io, format='WEBP', quality=75)
+
+                filename = os.path.splitext(os.path.basename(instance.file.name))[0]
+                thumb_name = f"{filename}.webp"
+
                 instance.thumbnail.save(
-                    instance.file.name,
+                    thumb_name,
                     ContentFile(thumb_io.getvalue()),
                     save=True
                 )
@@ -104,13 +109,19 @@ def get_upload_url(request):
 @login_required
 def save_file_url(request):
     """
-        Function used in production
+        Method used in production
     """
     if request.method == 'POST':
         key = request.POST.get('key')
+        filename = key.split('/')[-1]
+        filename_no_ext = os.path.splitext(filename)[0]
+        thumb_key = f"thumbnails/{filename_no_ext}.webp"
+
         file = File()
         file.file.name = key
+        file.thumbnail.name = thumb_key
         file.save()
+
         return JsonResponse({'status': 'ok'})
 
 
@@ -154,14 +165,3 @@ def download_selected_zip(request):
             )
             return response
 
-
-def set_thumbnail(request):
-    """
-        Function called by Lambda
-    """
-    if request.method == 'POST':
-        body = json.loads(request.body)
-        key = body['key']
-        thumb_url = body['thumb_url']
-        File.objects.filter(file__name=key).update(thumbnail__name=thumb_url)
-        return JsonResponse({'status': 'ok'})

@@ -14,12 +14,20 @@ const downloadOverlay = document.getElementById('download-overlay');
 // --- Lightbox ---
 let swiper = null;
 
-function loadSlideVideo(index) {
+function loadSlideMedia(index) {
     const slide = document.querySelectorAll('.swiper-slide')[index];
     if (!slide) return;
+    
+    // Lazy load video
     const video = slide.querySelector('video');
     if (video && !video.src && video.dataset.src) {
         video.src = video.dataset.src;
+    }
+    
+    // Lazy load image
+    const img = slide.querySelector('img');
+    if (img && img.dataset.src && img.src !== img.dataset.src) {
+        img.src = img.dataset.src;
     }
 }
 
@@ -49,14 +57,14 @@ function openLightbox(index) {
         on: {
             slideChange: () => {
                 resetVideos();
-                loadSlideVideo(swiper.activeIndex);
+                if (swiper) loadSlideMedia(swiper.activeIndex);
             },
         }
     });
     } else {
     swiper.slideTo(index, 0);
     }
-    loadSlideVideo(index)
+    loadSlideMedia(index)
     history.pushState({ lightboxOpen: true }, '');
 }
 function closeLightbox() {

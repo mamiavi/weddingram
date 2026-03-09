@@ -10,6 +10,5 @@ urlpatterns = [
     path('get_upload_url/', views.get_upload_url, name='get_url'),
     path('save_file_url/', views.save_file_url, name='save_url'),
     path('login_qr/<uuid:token>/', views.login_token, name='login_token'),
-    path('download-selected/', views.download_selected_zip, name="download_selected"),
-    path('set_thumbnail/', views.set_thumbnail, name='set_thumbnail')
+    path('download_selected_zip/', views.download_selected_zip, name="download_selected"),
 ]

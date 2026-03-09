@@ -187,6 +187,7 @@ if BUCKET_FILESTORE:
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-north-1')
     AWS_DEFAULT_ACL = 'private'
+    AWS_QUERYSTRING_AUTH = True
 
     STORAGES = {
         "default": {"BACKEND": "storages.backends.s3.S3Storage"},

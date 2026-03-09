@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.templatetags.static import static
 from django.utils.html import mark_safe
 
 VIDEO_FORMATS = ('.mp4', '.mov', '.avi', '.webm')
@@ -28,7 +29,10 @@ class File(models.Model):
     def thumbnail_url(self):
         if self.thumbnail and self.thumbnail.name:
             return self.thumbnail.url
-        return ''
+        if self.is_image:
+            return static('img/img_thumbnail.jpg')
+        else:
+            return static('img/video_thumbnail.png')
 
 
 class Token(models.Model):
