@@ -11,6 +11,19 @@ const selectAllBtn = document.getElementById('select-all-btn');
 const cancelSelectBtn = document.getElementById('cancel-select-btn');
 const downloadOverlay = document.getElementById('download-overlay');
 
+// --- Placeholder fallback for missing thumbnails ---
+document.querySelectorAll('.gallery-media').forEach(media => {
+    if (media.tagName === 'IMG') {
+        media.addEventListener('error', function() {
+            this.src = '/static/img/img_thumbnail.jpg';
+        });
+    } else if (media.tagName === 'VIDEO') {
+        media.addEventListener('error', function() {
+            this.poster = '/static/img/video_thumbnail.png';
+        });
+    }
+});
+
 // --- Lightbox ---
 let swiper = null;
 
