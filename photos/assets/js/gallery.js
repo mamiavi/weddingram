@@ -15,11 +15,11 @@ const downloadOverlay = document.getElementById('download-overlay');
 document.querySelectorAll('.gallery-media').forEach(media => {
     if (media.tagName === 'IMG') {
         media.addEventListener('error', function() {
-            this.src = '/static/img/img_thumbnail.jpg';
+            this.src = IMG_PLACEHOLDER;
         });
     } else if (media.tagName === 'VIDEO') {
         media.addEventListener('error', function() {
-            this.poster = '/static/img/video_thumbnail.png';
+            this.poster = VIDEO_PLACEHOLDER;
         });
     }
 });

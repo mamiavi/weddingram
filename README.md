@@ -1,6 +1,6 @@
 # 📸 Weddingram
 
-A Django web application for event guests to upload and download photos and videos in real time. Built to run on a Raspberry Pi 4 with AWS handling all the heavy lifting — file storage (S3), thumbnail generation (Lambda), and ZIP downloads (Lambda).
+A Django web application for event guests to upload and download photos and videos in real time. Built to run on a humble home server with AWS handling all the heavy lifting — file storage (S3), thumbnail generation (Lambda), and ZIP downloads (Lambda).
 
 ---
 
@@ -126,12 +126,6 @@ weddingram/
 
 ## Requirements
 
-**To run locally (without Docker):**
-- Python 3.11+
-- pip
-- Pillow — for local thumbnail generation
-- PyAV — for local video thumbnail generation
-
 **To run with Docker:**
 - Docker
 - Docker Compose
@@ -144,41 +138,6 @@ weddingram/
 ---
 
 ## Local Development Setup
-
-### Without Docker
-
-```bash
-git clone https://github.com/mamiavi/weddingram.git
-cd weddingram
-python -m venv venv
-source venv/bin/activate      # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-Create a `.env` file in the project root:
-
-```env
-DEBUG=True
-SECRET_KEY=your-local-django-secret-key
-BUCKET_FILESTORE=False
-```
-
-Run migrations and start the server:
-
-```bash
-python manage.py migrate
-python manage.py createsuperuser
-python manage.py runserver
-```
-
-In local mode (`BUCKET_FILESTORE=False`):
-- Files are stored in `media/uploads/`
-- Thumbnails are generated synchronously by Django using Pillow (images) and PyAV (videos)
-- Thumbnail filenames always use `.webp` extension regardless of original format
-- ZIPs are built in memory and served directly by Django
-- No AWS credentials needed
-
----
 
 ## Docker Setup
 
@@ -546,35 +505,6 @@ ZIP files accumulate in `zips/` after each download. This rule deletes them auto
 
 ---
 
-## Raspberry Pi Time Sync
-
-> ⚠️ **Critical:** AWS presigned URLs are extremely sensitive to clock skew. If the Pi's clock is out of sync, every S3 upload will fail with "Policy expired".
-
-Check and fix the clock before deploying:
-
-```bash
-# Check current time
-date
-
-# Sync immediately
-sudo apt install ntpdate -y
-sudo ntpdate pool.ntp.org
-
-# Enable automatic sync
-sudo timedatectl set-ntp true
-timedatectl status  # should show: System clock synchronized: yes
-```
-
-Add a cron job to keep it synced:
-
-```bash
-sudo crontab -e
-# Add this line:
-0 * * * * /usr/sbin/ntpdate pool.ntp.org
-```
-
----
-
 ## Environment Variables Reference
 
 | Variable | Required in prod | Description |
@@ -591,7 +521,7 @@ sudo crontab -e
 | `POSTGRES_PASSWORD` | Yes | PostgreSQL password |
 | `POSTGRES_HOST` | Yes | PostgreSQL host (e.g. `db` in Docker) |
 | `POSTGRES_PORT` | Yes | PostgreSQL port (e.g. `5432`) |
-| `WEDDING_DATE` | No | If set, enables countdown page before this date |
+| `WEDDING_DATE` | No | If set, enables countdown page before this date | Format: %Y-%m-%d %H:%M:%S
 
 ---
 
@@ -600,7 +530,7 @@ sudo crontab -e
 The app uses a **token-based authentication system** (`auth/backends.py`). Guests don't log in with a username/password — instead, they receive a unique URL:
 
 ```
-https://yourdomain.com/login/<token>/
+https://yourdomain.com/login_qr/<token>/
 ```
 
 Tokens are managed via the Django admin panel (`/admin/`). Create a token per guest or share one for the whole event.

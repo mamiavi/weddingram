@@ -2,6 +2,7 @@ import json
 import os
 import uuid
 import zipfile
+from datetime import datetime
 from io import BytesIO
 
 import av
@@ -21,7 +22,9 @@ from .models import File
 
 
 def countdown_page(request):
-    return render(request, "countdown.html")
+    return render(request, "countdown.html", {
+        'wedding_date': datetime.strptime(settings.WEDDING_DATE, "%Y-%m-%d %H:%M:%S").isoformat()
+    })
 
 
 def login_token(request, token):
