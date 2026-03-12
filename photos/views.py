@@ -14,6 +14,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
+from django.utils import timezone
 from PIL import Image
 
 from photos.forms import FileForm
@@ -22,8 +23,10 @@ from .models import File
 
 
 def countdown_page(request):
+    naive = datetime.datetime.strptime(settings.WEDDING_DATE, "%Y-%m-%d %H:%M:%S")
+    wedding_date = timezone.make_aware(naive).isoformat()
     return render(request, "countdown.html", {
-        'wedding_date': datetime.strptime(settings.WEDDING_DATE, "%Y-%m-%d %H:%M:%S").isoformat()
+        'wedding_date': wedding_date
     })
 
 

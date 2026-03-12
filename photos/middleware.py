@@ -9,7 +9,8 @@ from django.utils import timezone
 class CountdownMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
-        self.wedding_date = datetime.datetime.strptime(settings.WEDDING_DATE, "%Y-%m-%d %H:%M:%S")
+        naive = datetime.datetime.strptime(settings.WEDDING_DATE, "%Y-%m-%d %H:%M:%S")
+        self.wedding_date = timezone.make_aware(naive)
 
     def __call__(self, request):
         # Allow access to countdown page itself (avoid redirect loop)

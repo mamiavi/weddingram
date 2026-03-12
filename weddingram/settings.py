@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'storages',
-    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -139,17 +138,7 @@ AUTHENTICATION_BACKENDS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Europe/Madrid'
-
-USE_I18N = True
-
-USE_TZ = False
-
-CELERY_TIMEZONE = 'Europe/Madrid'
-CELERY_ENABLE_UTC = False
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -173,9 +162,6 @@ STATICFILES_DIRS = [
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
-
-# Celery
-CELERY_BROKER_URL = 'redis://redis:6379/0'
 
 if BUCKET_FILESTORE:
 
