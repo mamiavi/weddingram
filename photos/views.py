@@ -23,7 +23,7 @@ from .models import File
 
 
 def countdown_page(request):
-    naive = datetime.datetime.strptime(settings.WEDDING_DATE, "%Y-%m-%d %H:%M:%S")
+    naive = datetime.strptime(settings.WEDDING_DATE, "%Y-%m-%d %H:%M:%S")
     wedding_date = timezone.make_aware(naive).isoformat()
     return render(request, "countdown.html", {
         'wedding_date': wedding_date
