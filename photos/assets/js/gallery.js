@@ -11,21 +11,49 @@ const selectAllBtn = document.getElementById('select-all-btn');
 const cancelSelectBtn = document.getElementById('cancel-select-btn');
 const downloadOverlay = document.getElementById('download-overlay');
 
+// --- Placeholder fallback for missing thumbnails ---
+document.querySelectorAll('.gallery-media').forEach(media => {
+    if (media.tagName === 'IMG') {
+        media.addEventListener('error', function() {
+            this.src = IMG_PLACEHOLDER;
+        });
+    } else if (media.tagName === 'VIDEO') {
+        media.addEventListener('error', function() {
+            this.poster = VIDEO_PLACEHOLDER;
+        });
+    }
+});
+
 // --- Lightbox ---
 let swiper = null;
+
+function loadSlideMedia(index) {
+    const slide = document.querySelectorAll('.swiper-slide')[index];
+    if (!slide) return;
+    
+    // Lazy load video
+    const video = slide.querySelector('video');
+    if (video && !video.src && video.dataset.src) {
+        video.src = video.dataset.src;
+    }
+    
+    // Lazy load image
+    const img = slide.querySelector('img');
+    if (img && img.dataset.src && img.src !== img.dataset.src) {
+        img.src = img.dataset.src;
+    }
+}
+
 function resetVideos() {
     const allVideos = document.querySelectorAll('.swiper-slide video');
     allVideos.forEach(video => {
         video.pause();
         video.currentTime = 0;
-        video.load();
     });
 }
 function openLightbox(index) {
     lightbox.classList.add('active');
     addButton.classList.add('hidden');
-
-    resetVideos();
 
     if (!swiper) {
     swiper = new Swiper('.swiper', {
@@ -42,13 +70,14 @@ function openLightbox(index) {
         on: {
             slideChange: () => {
                 resetVideos();
+                if (swiper) loadSlideMedia(swiper.activeIndex);
             },
         }
     });
     } else {
     swiper.slideTo(index, 0);
     }
-
+    loadSlideMedia(index)
     history.pushState({ lightboxOpen: true }, '');
 }
 function closeLightbox() {
@@ -166,41 +195,50 @@ selectAllBtn.addEventListener('click', () => {
 cancelSelectBtn.addEventListener('click', exitSelectionMode);
 
 // --- Download Selected ---
-downloadSelectedBtn.addEventListener('click', downloadSelected);
-function downloadSelected() {
+downloadSelectedBtn.addEventListener('click', async function () {
     if (selectedItems.size === 0) return;
 
     showDownloadOverlay();
 
     const formData = new FormData();
-    selectedItems.forEach(id => formData.append("file_ids[]", id));
+    [...selectedItems].forEach(id => formData.append('file_ids[]', id));
 
-    const xhr = new XMLHttpRequest();
-    xhr.open("POST", "/download-selected/");
-    xhr.responseType = "blob";
+    try {
+        const response = await fetch('/download_selected_zip/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': csrftoken },
+            body: formData,
+        });
 
-    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        const contentType = response.headers.get('Content-Type') || '';
 
-    xhr.onload = function () {
-
-        hideDownloadOverlay();
-
-        if (xhr.status === 200) {
-            const blob = new Blob([xhr.response], { type: "application/zip" });
-            const url = window.URL.createObjectURL(blob);
-
-            const a = document.createElement("a");
+        if (contentType.includes('application/json')) {
+            // Production: Lambda returned a presigned S3 URL
+            const data = await response.json();
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+            window.location.href = data.download_url;
+        } else {
+            // Local dev: server returned the zip file directly
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
             a.href = url;
-            a.download = "selected_files.zip";
+            a.download = 'selected_files.zip';
             document.body.appendChild(a);
             a.click();
-
-            window.URL.revokeObjectURL(url);
+            a.remove();
+            URL.revokeObjectURL(url);
         }
-    };
-
-    xhr.send(formData);
-}
+    } catch (err) {
+        alert('Error al preparar la descarga. Inténtalo de nuevo.');
+        console.error(err);
+    } finally {
+        hideDownloadOverlay();
+    }
+});
 
 // --- Lightbox triggers for gallery media (images/videos) ---
 const galleryImages = document.querySelectorAll('.gallery-img');

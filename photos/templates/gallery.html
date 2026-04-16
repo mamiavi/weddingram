@@ -25,19 +25,20 @@
         <div class="gallery-item" data-id="{{ file.id }}">
           {% if file.is_video %}
             <video
-              src="{{ file.file.url }}#t=0.001"
+              src="{{ file.file.url }}"
               class="gallery-media"
               data-index="{{ forloop.counter0 }}"
               playsinline
-              preload="metadata"
-              poster="{{ file.thumbnail_url|default:'' }}"
+              preload="none"
+              poster="{{ file.thumbnail_url }}"
             ></video>
           {% else %}
             <img
-              src="{{ file.file.url }}"
+              src="{{ file.thumbnail_url }}"
               alt="Photo"
               data-index="{{ forloop.counter0 }}"
               class="gallery-media"
+              loading="lazy"
             />
           {% endif %}
           <div class="select-overlay"></div>
@@ -54,14 +55,13 @@
             <div class="swiper-slide">
               {% if file.is_video %}
                 <video
-                  src="{{ file.file.url }}#t=0.001"
+                  data-src="{{ file.file.url }}#t=0.001"
                   controls
                   playsinline
-                  preload="metadata"
-                  poster="{{ file.thumbnail_url|default:'' }}"
+                  preload="none"
                 ></video>
               {% else %}
-                <img src="{{ file.file.url }}" alt="Fullscreen photo" />
+                <img data-src="{{ file.file.url }}" alt="Fullscreen photo" />
               {% endif %}
             </div>
           {% endfor %}
@@ -73,7 +73,7 @@
     </div>
 
     <div class="bottom-button-group">
-      <a href="/" class="bottom-button" id="add-button">Añadir foto</a>
+      <a href="/" class="bottom-button" id="add-button">Añadir foto/video</a>
       <a id="download-selected-btn"
         class="bottom-button bottom-button-outline hidden">
         Descargar seleccionados (.zip)
@@ -90,6 +90,10 @@
 
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script>
+        const IMG_PLACEHOLDER = "{% static 'img/img_thumbnail.jpg' %}";
+        const VIDEO_PLACEHOLDER = "{% static 'img/video_thumbnail.png' %}";
+    </script>
     <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/gallery.js' %}"></script>
   </body>

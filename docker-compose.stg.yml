@@ -40,46 +40,6 @@ services:
       - traefik.http.middlewares.weddingram_web_stg.headers.stsSeconds=15768000
     restart: always
 
-  redis_stg:
-    image: redis:7.0-alpine
-    healthcheck:
-      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
-      interval: 1s
-      timeout: 3s
-      retries: 5
-    command: ["redis-server"]
-    restart: always
-    networks:
-      - traefik_proxy
-
-  celery_stg:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: celery -A weddingram worker --loglevel=info
-    restart: always
-    env_file:
-      - .env.stg
-    depends_on:
-      - web_stg
-      - redis_stg
-    networks:
-      - traefik_proxy
-
-  celery-beat_stg:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: celery -A weddingram beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
-    restart: always
-    env_file:
-      - .env.stg
-    depends_on:
-      - web_stg
-      - redis_stg
-    networks:
-      - traefik_proxy
-
   static_stg:
     image: nginx:alpine
     volumes:

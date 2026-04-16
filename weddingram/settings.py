@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 
-from celery.schedules import crontab
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -65,7 +64,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'storages',
-    'django_celery_beat'
 ]
 
 MIDDLEWARE = [
@@ -140,17 +138,7 @@ AUTHENTICATION_BACKENDS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'Europe/Madrid'
-
-USE_I18N = True
-
-USE_TZ = False
-
-CELERY_TIMEZONE = 'Europe/Madrid'
-CELERY_ENABLE_UTC = False
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
@@ -175,16 +163,6 @@ STATICFILES_DIRS = [
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
-# Celery
-CELERY_BROKER_URL = 'redis://redis:6379/0'
-
-CELERY_BEAT_SCHEDULE = {
-    "generate_gallery_zip_every_hour": {
-        "task": "photos.tasks.create_gallery_zip_task",
-        "schedule": crontab(minute=0),  # every hour at minute 0
-    },
-}
-
 if BUCKET_FILESTORE:
 
     AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
@@ -195,6 +173,7 @@ if BUCKET_FILESTORE:
     AWS_S3_SIGNATURE_VERSION = 's3v4'
     AWS_S3_REGION_NAME = config('AWS_S3_REGION_NAME', default='eu-north-1')
     AWS_DEFAULT_ACL = 'private'
+    AWS_QUERYSTRING_AUTH = True
 
     STORAGES = {
         "default": {"BACKEND": "storages.backends.s3.S3Storage"},
