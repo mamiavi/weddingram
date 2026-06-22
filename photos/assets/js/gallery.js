@@ -12,7 +12,7 @@ const cancelSelectBtn = document.getElementById('cancel-select-btn');
 const downloadOverlay = document.getElementById('download-overlay');
 
 // --- Download All ---
-const WEDDING_DOWNLOAD_DATE = new Date('2026-07-28T13:00:00Z'); // 15:00 Madrid = 13:00 UTC
+const WEDDING_DOWNLOAD_DATE = new Date('2026-06-28T13:00:00Z'); // 15:00 Madrid = 13:00 UTC
 const downloadAllBtn = document.getElementById('download-all-btn');
 if (downloadAllBtn) {
     downloadAllBtn.addEventListener('click', function(e) {
