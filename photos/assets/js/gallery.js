@@ -11,6 +11,18 @@ const selectAllBtn = document.getElementById('select-all-btn');
 const cancelSelectBtn = document.getElementById('cancel-select-btn');
 const downloadOverlay = document.getElementById('download-overlay');
 
+// --- Download All ---
+const WEDDING_DOWNLOAD_DATE = new Date('2026-07-28T13:00:00Z'); // 15:00 Madrid = 13:00 UTC
+const downloadAllBtn = document.getElementById('download-all-btn');
+if (downloadAllBtn) {
+    downloadAllBtn.addEventListener('click', function(e) {
+        if (new Date() < WEDDING_DOWNLOAD_DATE) {
+            e.preventDefault();
+            alert('La descarga masiva se activará después de la boda 🎉');
+        }
+    });
+}
+
 // --- Placeholder fallback for missing thumbnails ---
 document.querySelectorAll('.gallery-media').forEach(media => {
     if (media.tagName === 'IMG') {
@@ -197,6 +209,10 @@ cancelSelectBtn.addEventListener('click', exitSelectionMode);
 // --- Download Selected ---
 downloadSelectedBtn.addEventListener('click', async function () {
     if (selectedItems.size === 0) return;
+    if (selectedItems.size > 10) {
+        alert("Puedes seleccionar un máximo de 10 archivos a la vez. Para descargar todo usa el botón 'Descargar todo'.");
+        return;
+    }
 
     showDownloadOverlay();
 

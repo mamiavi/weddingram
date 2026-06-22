@@ -32,10 +32,10 @@ fileInput.addEventListener('change', async function () {
     }
 
     const totalSize = [...files].reduce((sum, file) => sum + file.size, 0);
-    const maxSize = 250 * 1024 * 1024; // 500MB
+    const maxSize = 1024 * 1024 * 1024; // 1GB
 
     if (totalSize > maxSize) {
-        alert("El tamaño total de los archivos no puede exceder de 500MB.");
+        alert("El tamaño total de los archivos no puede exceder de 1GB. Prueba a subirlos de uno en uno.");
         fileInput.value = ''; // Reset the input
         hideUploadOverlay();
         return;

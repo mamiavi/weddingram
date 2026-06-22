@@ -32,6 +32,7 @@
               preload="none"
               poster="{{ file.thumbnail_url }}"
             ></video>
+            <div class="play-icon">▶</div>
           {% else %}
             <img
               src="{{ file.thumbnail_url }}"
@@ -73,11 +74,16 @@
     </div>
 
     <div class="bottom-button-group">
-      <a href="/" class="bottom-button" id="add-button">Añadir foto/video</a>
-      <a id="download-selected-btn"
-        class="bottom-button bottom-button-outline hidden">
-        Descargar seleccionados (.zip)
-      </a>
+        <a href="/" class="bottom-button" id="add-button">Añadir foto/video</a>
+        <a id="download-selected-btn"
+            class="bottom-button bottom-button-outline hidden">
+            Descargar seleccionados (.zip)
+        </a>
+        <a id="download-all-btn"
+            class="bottom-button bottom-button-outline"
+            {% if zip_file_url %}href="{{ zip_file_url }}"{% endif %}>
+            Descargar todo (.zip)
+        </a>
     </div>
 
     <!--Download animation-->

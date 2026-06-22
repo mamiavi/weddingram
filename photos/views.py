@@ -76,11 +76,36 @@ def local_upload(request):
 @login_required
 def show_gallery(request):
     files = File.objects.all().order_by('-uploaded_at')
+    zip_url = None
     if settings.BUCKET_FILESTORE:
-        zip_url = f'https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.{settings.AWS_S3_REGION_NAME}.amazonaws.com/zips/gallery.zip'
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_S3_REGION_NAME,
+        )
+        try:
+            s3.head_object(
+                Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+                Key='zips/gallery.zip'
+            )
+            zip_url = s3.generate_presigned_url(
+                'get_object',
+                Params={
+                    'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+                    'Key': 'zips/gallery.zip'
+                },
+                ExpiresIn=3600
+            )
+        except:
+            pass
     else:
         zip_url = f'{settings.MEDIA_URL}zips/gallery.zip'
-    return render(request, 'gallery.html', {'files': files, 'zip_file_url': zip_url})
+
+    return render(request, 'gallery.html', {
+        'files': files,
+        'zip_file_url': zip_url
+    })
 
 
 @login_required
